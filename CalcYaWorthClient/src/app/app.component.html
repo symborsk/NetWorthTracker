@@ -1,60 +1,51 @@
 <app-layout>
-  <div class="card">
-    <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Assets</h3>
-    <div class="card-body">
-      <div id="table" class="table-editable">
-        <!-- <span class="table-add float-right mb-3 mr-2">
-          <a class="text-success" (click)="add()">
-            <mdb-icon fas icon="plus" size="2x"></mdb-icon>
-          </a>
-        </span> -->
-        <table class="table table-bordered table-responsive-md table-striped text-center">
-          <tr>
-            <th class="text-center">Amount</th>
-            <th class="text-center">Description</th>
-            <th class="text-center">Date Created</th>
-            <th class="text-center">Date Modified</th>
-            <th class="text-center"></th>
-          </tr>
-          <tr *ngFor="let liability of liabilitiesList; let id = index">
-            <td>
-              <span (keyup)="changeValue(id, 'name', $event)" (blur)="updateList(id, 'Description', $event)"
-                contenteditable="true">{{liability.Description}}</span>
-            </td>
-            <td>
-              <span contenteditable="true" (keyup)="changeValue(id, 'Amount', $event)"
-                (blur)="updateList(id, 'Amount', $event)">{{liability.Amount}}</span>
-            </td>
-            <td>
-              <span contenteditable="false">{{liability.DateCreated}}</span>
-            </td>
-            <td>
-              <span contenteditable="false">{{liability.DateModified}}</span>
-            </td>
-            <!-- </td>
-            <td>
-              <span class="table-up">
-                <a class="indigo-text">
-                  <mdb-icon fas icon="long-arrow-alt-up"></mdb-icon>
-                </a>
-              </span>
-              <span class="table-down">
-                <a class="indigo-text">
-                  <mdb-icon fas icon="long-arrow-alt-down"></mdb-icon>
-                </a>
-              </span>
-            </td>
-            <td> -->
-            <td>
-              <span class="table-remove">
-                <button type="button" mdbBtn color="danger" rounded="true" size="sm" class="my-0"
-                  (click)="remove(id)">Remove</button>
-              </span>
-            </td>
-          </tr>
-        </table>
+
+  <div class="container">
+
+    <div class="row">
+        <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
+            <mat-button-toggle value="bold">Liabilities</mat-button-toggle>
+            <mat-button-toggle value="italic">Assets</mat-button-toggle>
+          </mat-button-toggle-group>
+    </div>
+
+    <div class="card">
+      <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Assets</h3>
+      <div class="card-body">
+        <div id="table" class="table-editable">
+          <table class="table table-bordered table-responsive-md table-striped text-center">
+            <tr>
+              <th class="text-center">Amount</th>
+              <th class="text-center">Description</th>
+              <th class="text-center">Date Created</th>
+              <th class="text-center">Date Modified</th>
+              <th class="text-center"></th>
+            </tr>
+            <tr *ngFor="let liability of liabilitiesList; let id = index">
+              <td>
+                <span (keyup)="changeValue(id, 'Description', $event)" (blur)="updateList(id, 'Description', $event)"
+                  contenteditable="true">{{liability.Description}}</span>
+              </td>
+              <td>
+                <span contenteditable="true" (keyup)="changeValue(id, 'Amount', $event)"
+                  (blur)="updateList(id, 'Amount', $event)">{{liability.Amount}}</span>
+              </td>
+              <td>
+                <span contenteditable="false">{{liability.DateCreated}}</span>
+              </td>
+              <td>
+                <span contenteditable="false">{{liability.DateModified}}</span>
+              </td>
+              <td>
+                <span class="table-remove">
+                  <button type="button" mdbBtn color="danger" rounded="true" size="sm" class="my-0"
+                    (click)="remove(id)">Remove</button>
+                </span>
+              </td>
+            </tr>
+          </table>
+        </div>
       </div>
     </div>
   </div>
-  <!-- Editable table -->
 </app-layout>
