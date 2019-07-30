@@ -4,7 +4,7 @@ import { NgbPaginationModule, NgbAlertModule, NgbDropdownModule } from '@ng-boot
 import { NgModule } from '@angular/core';
 import { MDBBootstrapModule } from 'angular-bootstrap-md';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-
+import { UiSwitchModule } from 'ngx-toggle-switch';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -21,6 +21,7 @@ import { UiModule } from './ui/ui.module';
     NgbDropdownModule,
     MatButtonToggleModule,
     BrowserModule,
+    UiSwitchModule,
     BrowserAnimationsModule,
     AppRoutingModule,
     UiModule

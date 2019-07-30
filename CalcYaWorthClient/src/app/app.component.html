@@ -1,13 +1,23 @@
 <app-layout>
 
   <div class="container">
-
-    <div class="row">
-        <mat-button-toggle-group name="fontStyle" aria-label="Font Style">
-            <mat-button-toggle value="bold">Liabilities</mat-button-toggle>
-            <mat-button-toggle value="italic">Assets</mat-button-toggle>
-          </mat-button-toggle-group>
-    </div>
+    <form>
+      <div class="form-row align-items-center">
+        <div class="col">
+          <input type="text" class="form-control" placeholder="Descrption">
+        </div>
+        <div class="col">
+          <input type="number" class="form-control" placeholder="Amount">
+        </div>
+        <div>
+          <a class="btn pull-right" [ngClass]="IsAsset ? 'btn-primary' : 'btn-danger'"
+            (click)="IsAsset = !IsAsset">
+            {{IsAsset ? 'Asset' : 'Liability'}}
+          </a>
+        </div>
+        <button type="submit" class="btn btn-primary" (click)="add()">Add</button>
+      </div>
+    </form>
 
     <div class="card">
       <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Assets</h3>

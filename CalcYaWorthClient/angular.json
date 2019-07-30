@@ -25,9 +25,12 @@
             ],
             "styles": [
               "src/styles.scss",
-              "node_modules/bootstrap/dist/css/bootstrap.min.css"
+              "node_modules/bootstrap/dist/css/bootstrap.min.css",
+              "node_modules/bootstrap4-toggle/css/bootstrap4-toggle.min.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/bootstrap4-toggle/js/bootstrap4-toggle.min.js"
+            ]
           },
           "configurations": {
             "production": {
