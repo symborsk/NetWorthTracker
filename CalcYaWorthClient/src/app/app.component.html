@@ -1,17 +1,16 @@
 <app-layout>
 
   <div class="container">
-    <form>
+    <form [formGroup]="frm">
       <div class="form-row align-items-center">
         <div class="col">
-          <input type="text" class="form-control" placeholder="Descrption">
+          <input type="text" class="form-control" placeholder="Descrption" formControlName="Description">
         </div>
         <div class="col">
-          <input type="number" class="form-control" placeholder="Amount">
+          <input type="number" class="form-control" placeholder="Amount" formControlName="Amount">
         </div>
         <div>
-          <a class="btn pull-right" [ngClass]="IsAsset ? 'btn-primary' : 'btn-danger'"
-            (click)="IsAsset = !IsAsset">
+          <a class="btn pull-right" [ngClass]="IsAsset ? 'btn-primary' : 'btn-danger'" (click)="IsAsset = !IsAsset">
             {{IsAsset ? 'Asset' : 'Liability'}}
           </a>
         </div>
@@ -20,7 +19,7 @@
     </form>
 
     <div class="card">
-      <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Assets</h3>
+      <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Liabilities</h3>
       <div class="card-body">
         <div id="table" class="table-editable">
           <table class="table table-bordered table-responsive-md table-striped text-center">
@@ -33,7 +32,8 @@
             </tr>
             <tr *ngFor="let liability of liabilitiesList; let id = index">
               <td>
-                <span (keyup)="changeValue(id, 'Description', $event)" (blur)="updateList(id, 'Description', $event)"
+                <span (keyup)="changeValue(id, 'Description', $event)"
+                  (blur)="updateListLiability(id, 'Description', $event)"
                   contenteditable="true">{{liability.Description}}</span>
               </td>
               <td>
@@ -49,12 +49,51 @@
               <td>
                 <span class="table-remove">
                   <button type="button" mdbBtn color="danger" rounded="true" size="sm" class="my-0"
-                    (click)="remove(id)">Remove</button>
+                    (click)="removeLiability(id)">Remove</button>
                 </span>
               </td>
             </tr>
           </table>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-header text-center font-weight-bold text-uppercase py-4">Assets</h3>
+    <div class="card-body">
+      <div id="table" class="table-editable">
+        <table class="table table-bordered table-responsive-md table-striped text-center">
+          <tr>
+            <th class="text-center">Amount</th>
+            <th class="text-center">Description</th>
+            <th class="text-center">Date Created</th>
+            <th class="text-center">Date Modified</th>
+            <th class="text-center"></th>
+          </tr>
+          <tr *ngFor="let asset of assetList; let id = index">
+            <td>
+              <span (keyup)="changeValue(id, 'Description', $event)" (blur)="updateListAsset(id, 'Description', $event)"
+                contenteditable="true">{{asset.Description}}</span>
+            </td>
+            <td>
+              <span contenteditable="true" (keyup)="changeValue(id, 'Amount', $event)"
+                (blur)="updateList(id, 'Amount', $event)">{{asset.Amount}}</span>
+            </td>
+            <td>
+              <span contenteditable="false">{{asset.DateCreated}}</span>
+            </td>
+            <td>
+              <span contenteditable="false">{{asset.DateModified}}</span>
+            </td>
+            <td>
+              <span class="table-remove">
+                <button type="button" mdbBtn color="danger" rounded="true" size="sm" class="my-0"
+                  (click)="removeAsset(id)">Remove</button>
+              </span>
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
   </div>
