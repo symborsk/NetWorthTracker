@@ -1,0 +1,16 @@
+<!-- <select [(ngModel)]="selectedCurrency">
+    <option *ngFor="let rate of rates" [value]="option.CurrencyISO4217Code">
+      {{option.CurrencyISO4217Code}}
+    </option>
+  </select> -->
+<!-- <div>{{this.rates[1].CurrencyISO4217Code}}</div>
+<form [formGroup]="currencyForm">
+    <select formControlName="CurrencyControl">
+        <option [ngValue]="rate" *ngFor="let rate of rates">{{rate.CurrencyISO4217Code}}</option>
+    </select>
+</form> -->
+
+<select [(ngModel)]="defaultSelected" id="brandFontmenu">
+    <option *ngFor="let rate of rates" [value]="rate.CurrencyISO4217Code">{{rate.CurrencyISO4217Code}}
+    </option>
+</select>

@@ -1,6 +1,11 @@
 <app-layout>
 
+
   <div class="container">
+      <div class="card">
+        <app-currency-selector [selectedCurrency]="currentRateSelected" [rates]="allCurrencies" (rateChanged)="rate_onChange($event)"></app-currency-selector>
+      </div>
+
     <form [formGroup]="frm">
       <div class="form-row align-items-center">
         <div class="col">
@@ -14,7 +19,7 @@
             {{IsAsset ? 'Asset' : 'Liability'}}
           </a>
         </div>
-        <button type="submit" class="btn btn-primary" (click)="add()">Add</button>
+        <button type="submit" class="btn btn-primary" (click)="addAssetOrLiability()">Add</button>
       </div>
     </form>
 

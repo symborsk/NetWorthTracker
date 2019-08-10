@@ -1,13 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder } from '@angular/forms';
-import { ImplicitReceiver } from '@angular/compiler';
+import { Guid } from 'guid-typescript';
+import { NetWorthInfo, Asset, Liability } from './classes/CostingInfo';
+import { CurrencyFetcherService } from './Services/currency-fetcher.service';
+import { CurrencyRate } from './classes/currencyRate';
 
-
-
-export interface Food {
-  value: string;
-  viewValue: string;
-}
 
 @Component({
   selector: 'app-root',
@@ -20,29 +17,23 @@ export class AppComponent implements OnInit {
   frm: FormGroup;
   editField: string;
 
-    liabilitiesList: Array<any> = [
-      { Id: 1, Amount: 200000, Description: 'Mortgage', DateCreated: '2019-01-11' , DateModified: '2019-01-11'},
-      { Id: 2, Amount: 300000, Description: 'Car Loan', DateCreated: '2019-01-11', DateModified: '2019-01-11'},
-      { Id: 3, Amount: 100000, Description: 'RRSP Loan', DateCreated: '2019-01-11', DateModified: '2019-01-11'},
-      { Id: 4, Amount: 400000, Description: 'Toaster Loan', DateCreated: '2019-01-11', DateModified: '2019-01-11'},
-      { Id: 5, Amount: 500000, Description: 'Bail for Jimmy', DateCreated: '2019-01-11', DateModified: '2019-01-11'},
-    ];
+    private liabilitiesList: Array<NetWorthInfo> = [];
 
-    assetList: Array<any> = [
-      { Id: 1, Amount: 200000, Description: 'RRSP', DateCreated: '2019-01-11' , DateModified: '2019-01-11'},
-      { Id: 2, Amount: 300000, Description: 'TFSA', DateCreated: '2019-01-11', DateModified: '2019-01-11'},
-      { Id: 3, Amount: 100000, Description: 'House', DateCreated: '2019-01-11', DateModified: '2019-01-11'},
-      { Id: 4, Amount: 400000, Description: 'Boat', DateCreated: '2019-01-11', DateModified: '2019-01-11'},
-      { Id: 5, Amount: 500000, Description: 'House Boat', DateCreated: '2019-01-11', DateModified: '2019-01-11'},
-    ];
+    private assetList: Array<NetWorthInfo> = [];
 
-    constructor(private fb: FormBuilder) {}
+    private currentRateSelected: CurrencyRate;
+
+    private allCurrencies: Array<CurrencyRate> = [];
+
+    constructor(private fb: FormBuilder, private currrencyService: CurrencyFetcherService) {}
 
     ngOnInit(): void {
       this.frm = this.fb.group({
         Description: null,
         Amount: null
       });
+
+      this.grabAllCurrencyRatesFromService();
     }
 
     updateListLiability(id: number, property: string, event: any) {
@@ -54,27 +45,73 @@ export class AppComponent implements OnInit {
       this.liabilitiesList.splice(id, 1);
     }
 
-    add() {
-      const Desc = this.frm.get('Description').value;
-      const amo = this.frm.get('Amount').value;
+    addAssetOrLiability() {
+      const descEntered = this.frm.get('Description').value;
+      const amountEntered = this.frm.get('Amount').value;
 
       if (this.IsAsset) {
-          this.assetList.push({ Id: 5, Amount: amo, Description: Desc, DateCreated: '2019-01-11', DateModified: '2019-01-11'});
+        const newAsset = new Asset();
+
+        newAsset.identifier = Guid.create();
+        newAsset.description = descEntered;
+        newAsset.amountBase = amountEntered;
+        newAsset.dateCreatedTimestamp =  new Date().getTime();
+        newAsset.dateModifiedTimestamp = newAsset.dateCreatedTimestamp;
+        this.assetList.push(newAsset);
         } else {
-          this.liabilitiesList.push({ Id: 5, Amount: amo, Description: Desc, DateCreated: '2019-01-11', DateModified: '2019-01-11'});
+          const newLiability = new Liability();
+
+          newLiability.identifier = Guid.create();
+          newLiability.description = descEntered;
+          newLiability.amountBase = amountEntered;
+          newLiability.dateCreatedTimestamp =  new Date().getTime();
+          newLiability.dateModifiedTimestamp = newLiability.dateCreatedTimestamp;
+          this.liabilitiesList.push(newLiability);
       }
     }
 
     updateListAsset(id: number, property: string, event: any) {
       const editField = event.target.textContent;
-      this.assetList[id][property] = editField;
+
+      this.liabilitiesList[id][property] = editField;
     }
 
     removeAsset(id: any) {
-      this.assetList.splice(id, 1);
+      this.liabilitiesList.splice(id, 1);
     }
 
     changeValue(id: number, property: string, event: any) {
       this.editField = event.target.textContent;
+    }
+
+    grabAllCurrencyRatesFromService() {
+
+      const ratesSupported = this.currrencyService.GetAllRatesSupported();
+
+      this.currrencyService.fetchAllCurrencies('EUR')
+      .subscribe(
+        response => {
+          for (const key of Object.keys(response.rates)) {
+
+            const newRate = new CurrencyRate();
+            newRate.CurrencyISO4217Code = key;
+            newRate.RateVersusBase = response.rates[key];
+            this.allCurrencies.push(newRate);
+          }
+
+          this.currentRateSelected = this.allCurrencies.find(x => x.CurrencyISO4217Code === 'EUR');
+        },
+        (error: Response) => {
+          if (error.status === 104)  {
+            alert('The API has run out of requests for this month, someone should have payed the bill. ¯\_(ツ)_/¯');
+          } else {
+            alert('An Unexpected Error Occured when trying to fetch current currency rates.');
+            console.log(error);
+          }
+        });
+    }
+
+    rate_onChange(rate: CurrencyRate) {
+
     }
 }
