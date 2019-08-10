@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormGroup, FormBuilder } from '@angular/forms';
+import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { Guid } from 'guid-typescript';
 import { NetWorthInfo, Asset, Liability } from './classes/CostingInfo';
 import { CurrencyFetcherService } from './Services/currency-fetcher.service';
@@ -15,6 +15,7 @@ export class AppComponent implements OnInit {
 
   IsAsset = false;
   frm: FormGroup;
+
   editField: string;
 
     private liabilitiesList: Array<NetWorthInfo> = [];
@@ -25,24 +26,41 @@ export class AppComponent implements OnInit {
 
     private allCurrencies: Array<CurrencyRate> = [];
 
-    constructor(private fb: FormBuilder, private currrencyService: CurrencyFetcherService) {}
+    private currentTotal: number;
 
-    ngOnInit(): void {
-      this.frm = this.fb.group({
-        Description: null,
-        Amount: null
-      });
-
+    constructor(private fb: FormBuilder, private currrencyService: CurrencyFetcherService) {
+      // Ensure no errors thrown on initializing of child componented by setting this empty exachange rate
+      this.currentRateSelected = new CurrencyRate();
       this.grabAllCurrencyRatesFromService();
     }
 
-    updateListLiability(id: number, property: string, event: any) {
-      const editField = event.target.textContent;
-      this.liabilitiesList[id][property] = editField;
+    ngOnInit(): void {
+      this.frm = this.fb.group({
+        Description: new FormControl(null, [Validators.required]),
+        Amount: new FormControl(null, [Validators.required])
+      });
     }
 
-    removeLiability(id: any) {
-      this.liabilitiesList.splice(id, 1);
+    updateAmountListLiability(identifier: Guid, property: string, event: any) {
+      const index = this.liabilitiesList.findIndex(x => x.identifier === identifier);
+
+      this.liabilitiesList[index][property] = this.convertToBase(event.target.textContent);
+      this.liabilitiesList[index].dateModifiedTimestamp = new Date().getTime();
+      this.calculateTotal();
+    }
+
+    updateListLiability(identifier: Guid, property: string, event: any) {
+      const index = this.liabilitiesList.findIndex(x => x.identifier === identifier);
+
+      this.liabilitiesList[index][property] = event.target.textContent;
+      this.liabilitiesList[index].dateModifiedTimestamp = new Date().getTime();
+    }
+
+    removeLiability(identifier: Guid) {
+      const index = this.liabilitiesList.findIndex(x => x.identifier === identifier);
+
+      this.liabilitiesList.splice(index, 1);
+      this.calculateTotal();
     }
 
     addAssetOrLiability() {
@@ -54,7 +72,7 @@ export class AppComponent implements OnInit {
 
         newAsset.identifier = Guid.create();
         newAsset.description = descEntered;
-        newAsset.amountBase = amountEntered;
+        newAsset.amountBase = this.convertToBase(amountEntered);
         newAsset.dateCreatedTimestamp =  new Date().getTime();
         newAsset.dateModifiedTimestamp = newAsset.dateCreatedTimestamp;
         this.assetList.push(newAsset);
@@ -63,34 +81,51 @@ export class AppComponent implements OnInit {
 
           newLiability.identifier = Guid.create();
           newLiability.description = descEntered;
-          newLiability.amountBase = amountEntered;
+          newLiability.amountBase = this.convertToBase(amountEntered);
           newLiability.dateCreatedTimestamp =  new Date().getTime();
           newLiability.dateModifiedTimestamp = newLiability.dateCreatedTimestamp;
           this.liabilitiesList.push(newLiability);
       }
+
+      // Believe it is best if this value resets after adding
+      this.frm.get('Description').setValue(null);
+      this.frm.get('Amount').setValue(null);
+
+      this.calculateTotal();
     }
 
-    updateListAsset(id: number, property: string, event: any) {
-      const editField = event.target.textContent;
+    updateAmountListAsset(identifier: Guid, property: string, event: any) {
+      const index = this.assetList.findIndex(x => x.identifier === identifier);
 
-      this.liabilitiesList[id][property] = editField;
+      this.assetList[index][property] = this.convertToBase(event.target.textContent);
+      this.assetList[index].dateModifiedTimestamp = new Date().getTime();
+      this.calculateTotal();
     }
 
-    removeAsset(id: any) {
-      this.liabilitiesList.splice(id, 1);
+    updateListAsset(identifier: Guid, property: string, event: any) {
+      const index = this.assetList.findIndex(x => x.identifier === identifier);
+
+      this.assetList[index][property] = event.target.textContent;
+      this.assetList[index].dateModifiedTimestamp = new Date().getTime();
     }
 
-    changeValue(id: number, property: string, event: any) {
+    removeAsset(identifier: Guid) {
+      const index = this.assetList.findIndex(x => x.identifier === identifier);
+
+      this.assetList.splice(index, 1);
+      this.calculateTotal();
+    }
+
+    changeValue(event: any) {
       this.editField = event.target.textContent;
     }
 
     grabAllCurrencyRatesFromService() {
 
-      const ratesSupported = this.currrencyService.GetAllRatesSupported();
-
       this.currrencyService.fetchAllCurrencies('EUR')
       .subscribe(
         response => {
+
           for (const key of Object.keys(response.rates)) {
 
             const newRate = new CurrencyRate();
@@ -112,6 +147,17 @@ export class AppComponent implements OnInit {
     }
 
     rate_onChange(rate: CurrencyRate) {
+      this.currentRateSelected = rate;
+    }
 
+    calculateTotal() {
+      const sumAssets = this.assetList.reduce((sum, current) => sum + current.amountBase, 0);
+      const sumLiabilities = this.liabilitiesList.reduce((sum, current) => sum + current.amountBase, 0);
+
+      this.currentTotal = sumAssets - sumLiabilities;
+    }
+
+    convertToBase(value: number): number {
+      return value / this.currentRateSelected.RateVersusBase;
     }
 }

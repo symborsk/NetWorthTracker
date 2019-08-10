@@ -3,25 +3,32 @@ import { CurrencyRate } from '../classes/currencyRate';
 
 @Pipe({
   name: 'currencyConverterPipe',
-  pure: true
+  pure: false
 })
 export class CurrencyConverterPipePipe implements PipeTransform {
 
   transform(baseRate: number, rate: CurrencyRate) {
+
+    if (!baseRate && baseRate !== 0) {
+      return '---';
+    }
+
+    const calculatedCurrencyValue = baseRate * rate.RateVersusBase;
+
     switch (rate.CurrencyISO4217Code.toUpperCase()) {
-      case 'CDN':
+      case 'CAD':
       case 'USD':
       case 'AUD':
       case 'MXN':
-        return '$' + baseRate * rate.RateVersusBase;
+        return '$' + calculatedCurrencyValue.toFixed(2);
       case 'EUR':
-        return '€' + baseRate * rate.RateVersusBase;
+        return '€' + calculatedCurrencyValue.toFixed(2);
       case 'GBP':
-        return '£' + baseRate * rate.RateVersusBase;
+        return '£' + calculatedCurrencyValue.toFixed(2);
       case 'CNY':
-        return '¥' + baseRate * rate.RateVersusBase;
+        return '¥' + calculatedCurrencyValue.toFixed(2);
       default:
-        return baseRate * rate.RateVersusBase + ' ' + rate.CurrencyISO4217Code.toUpperCase();
+        return calculatedCurrencyValue.toFixed(2) + ' ' + rate.CurrencyISO4217Code.toUpperCase();
     }
   }
 

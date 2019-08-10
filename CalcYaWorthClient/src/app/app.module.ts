@@ -13,12 +13,14 @@ import { AppComponent } from './app.component';
 import { UiModule } from './ui/ui.module';
 import { CurrencySelectorComponent } from './currency-selector/currency-selector.component';
 import { CurrencyConverterPipePipe } from './Pipes/currency-converter-pipe.pipe';
+import { DateTimestampPipe } from './Pipes/date-timestamp.pipe';
 
 @NgModule({
   declarations: [
     AppComponent,
     CurrencySelectorComponent,
-    CurrencyConverterPipePipe
+    CurrencyConverterPipePipe,
+    DateTimestampPipe
   ],
   imports: [
     NgbPaginationModule,

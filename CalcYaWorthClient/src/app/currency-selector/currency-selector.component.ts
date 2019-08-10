@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core';
+import { Component, OnInit, Input, EventEmitter, Output, AfterViewChecked } from '@angular/core';
 import { CurrencyRate } from '../classes/currencyRate';
 import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
 
@@ -7,28 +7,20 @@ import { FormBuilder, FormGroup, FormControl } from '@angular/forms';
   templateUrl: './currency-selector.component.html',
   styleUrls: ['./currency-selector.component.css']
 })
-export class CurrencySelectorComponent implements OnInit {
+export class CurrencySelectorComponent {
 
   @Input()
   rates: Array<CurrencyRate>;
 
   @Input()
-  selectedCurrency: CurrencyRate;
+  selectedCurrencyString: string;
 
   @Output()
   rateChanged: EventEmitter<CurrencyRate> = new EventEmitter<CurrencyRate>();
 
+  constructor() { }
 
-  defaultSelected: string;
-  // currencyForm: FormGroup;
-
-  constructor(private fb: FormBuilder) { }
-
-  ngOnInit() {
-    // this.currencyForm = new FormGroup({
-    //   'CurrencyControl' : new FormControl(this.rates[1])
-    // });
-    this.defaultSelected = this.rates[1].CurrencyISO4217Code;
+  currencyType_change(isoCurrencry: string) {
+    this.rateChanged.emit(this.rates.find(x => x.CurrencyISO4217Code === isoCurrencry));
   }
-
 }
