@@ -22,7 +22,7 @@ namespace CalcYaWorthWebAPI.Controllers
         }
 
         [HttpGet("{userId}")]
-        public async Task<ActionResult<JObject>> GetCostItems(int userId)
+        public async Task<ActionResult<JObject>> GetNetWorthItems(int userId)
         {
             var assets =  await _context.Assets.Where(x => x.UserId == userId).ToListAsync();
             var liablities = await _context.Liabilities.Where(x => x.UserId == userId).ToListAsync();

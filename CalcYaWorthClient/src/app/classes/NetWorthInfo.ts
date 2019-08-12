@@ -1,7 +1,8 @@
 import { Guid } from 'guid-typescript';
 
 export interface NetWorthInfo {
-  identifier: Guid;
+  userId: number;
+  identifier: number;
   description: string;
   amountBase: number;
   dateCreatedTimestamp: number;
@@ -9,7 +10,8 @@ export interface NetWorthInfo {
 }
 
 export class Asset implements NetWorthInfo {
-  identifier: Guid;
+  userId: number;
+  identifier: number;
   description: string;
   amountBase: number;
   dateCreatedTimestamp: number;
@@ -17,7 +19,8 @@ export class Asset implements NetWorthInfo {
 }
 
 export class Liability implements NetWorthInfo {
-  identifier: Guid;
+  userId: number;
+  identifier: number;
   description: string;
   amountBase: number;
   dateCreatedTimestamp: number;
