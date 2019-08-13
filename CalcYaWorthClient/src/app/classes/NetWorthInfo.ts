@@ -5,8 +5,8 @@ export interface NetWorthInfo {
   identifier: number;
   description: string;
   amountBase: number;
-  dateCreatedTimestamp: number;
-  dateModifiedTimestamp: number;
+  timeCreated: number;
+  timeModified: number;
 }
 
 export class Asset implements NetWorthInfo {
@@ -14,8 +14,8 @@ export class Asset implements NetWorthInfo {
   identifier: number;
   description: string;
   amountBase: number;
-  dateCreatedTimestamp: number;
-  dateModifiedTimestamp: number;
+  timeCreated: number;
+  timeModified: number;
 }
 
 export class Liability implements NetWorthInfo {
@@ -23,6 +23,6 @@ export class Liability implements NetWorthInfo {
   identifier: number;
   description: string;
   amountBase: number;
-  dateCreatedTimestamp: number;
-  dateModifiedTimestamp: number;
+  timeCreated: number;
+  timeModified: number;
 }

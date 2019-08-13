@@ -62,3 +62,4 @@ typings/
 /CalcYaWorthServer/.vs/CalcYaWorthWebAPI/v15
 /CalcYaWorthServer/CalcYaWorthWebAPI/bin/Debug/netcoreapp2.1
 /CalcYaWorthServer/CalcYaWorthWebAPI/obj
+/CalcYaWorthServer/CalcYaWorthWebAPI/bin/Release/netcoreapp2.1

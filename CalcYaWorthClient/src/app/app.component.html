@@ -1,8 +1,9 @@
 <app-layout>
 
   <div class="container">
-    <app-currency-selector [selectedCurrencyString]="'EUR'" [rates]="allCurrencies"
-      (rateChanged)="rate_onChange($event)"></app-currency-selector>
+    <app-currency-selector
+      [selectedCurrencyString]="this.currentRateSelected ? this.currentRateSelected.CurrencyISO4217Code : 'not set'"
+      [rates]="allCurrencies" (rateChanged)="rate_onChange($event)"></app-currency-selector>
 
     <div class="bg-light border border-light p-3 mt-2" autocomplete="off" novalidate>
       <h4>Add Assets/Liabilities</h4>
@@ -15,11 +16,13 @@
             <div class="col">
               <input type="number" class="form-control" placeholder="Amount" formControlName="Amount">
             </div>
-            <div>
-              <button type="button" class="btn pull-right mr-1"
-                [ngClass]="IsAsset ? 'btn-outline-primary' : 'btn-outline-danger'" (click)="IsAsset = !IsAsset">
-                {{IsAsset ? 'Asset' : 'Liability'}}
-              </button>
+            <div class="btn-group btn-group-toggle mr-2" ngbRadioGroup name="RadioWorthType" formControlName="NetWorthType">
+              <label ngbButtonLabel class="btn-outline-success">
+                <input ngbButton type="radio" value="Asset"> Asset
+              </label>
+              <label ngbButtonLabel class="btn-outline-danger">
+                <input ngbButton type="radio" value="Liability"> Liability
+              </label>
             </div>
             <button type="submit" class="btn btn-primary" (click)="addAssetOrLiability()">Add</button>
           </div>
@@ -42,23 +45,23 @@
             <tr *ngFor="let liability of liabilitiesList;">
               <td>
                 <span (keyup)="changeValue($event)"
-                  (blur)="updateListLiability(liability.identifier, 'description', $event)"
+                  (blur)="onUpdateLiability(liability.identifier, 'description', $event)"
                   contenteditable="true">{{liability.description}}</span>
               </td>
               <td>
                 <span contenteditable="true" (keyup)="changeValue($event)"
-                  (blur)="updateAmountListLiability(liability.identifier, 'amountBase', $event)">{{liability.amountBase | currencyConverterPipe: currentRateSelected}}</span>
+                  (blur)="onUpdateAmountLiability(liability.identifier, 'amountBase', $event)">{{liability.amountBase | currencyConverterPipe: currentRateSelected}}</span>
               </td>
               <td>
-                <span class="bg-light" contenteditable="false">{{liability.dateCreatedTimestamp | dateTimestamp}}</span>
+                <span class="bg-light" contenteditable="false">{{liability.timeCreated | dateTimestamp}}</span>
               </td>
               <td>
-                <span class="bg-light" contenteditable="false">{{liability.dateModifiedTimestamp | dateTimestamp}}</span>
+                <span class="bg-light" contenteditable="false">{{liability.timeModified | dateTimestamp}}</span>
               </td>
               <td>
                 <span class="table-remove">
                   <button type="button" class="my-0 btn btn-danger btn-sm"
-                    (click)="removeLiability(liability.identifier)">Remove</button>
+                    (click)="onRemoveLiability(liability.identifier)">Remove</button>
                 </span>
               </td>
             </tr>
@@ -81,24 +84,23 @@
             </tr>
             <tr *ngFor="let asset of assetList">
               <td>
-                <span (keyup)="changeValue($event)"
-                  (blur)="updateListAsset(asset.identifier, 'description', $event)"
+                <span (keyup)="changeValue($event)" (blur)="onUpdateAsset(asset.identifier, 'description', $event)"
                   contenteditable="true">{{asset.description}}</span>
               </td>
               <td>
                 <span contenteditable="true" (keyup)="changeValue($event)"
-                  (blur)="updateAmountListAsset(asset.identifier, 'amountBase', $event)">{{asset.amountBase | currencyConverterPipe: currentRateSelected}}</span>
+                  (blur)="onUpdateAmountAsset(asset.identifier, 'amountBase', $event)">{{asset.amountBase | currencyConverterPipe: currentRateSelected}}</span>
               </td>
               <td>
-                <span class="bg-light" contenteditable="false">{{asset.dateCreatedTimestamp | dateTimestamp}}</span>
+                <span class="bg-light" contenteditable="false">{{asset.timeCreated | dateTimestamp}}</span>
               </td>
               <td>
-                <span class="bg-light" contenteditable="false">{{asset.dateModifiedTimestamp | dateTimestamp}}</span>
+                <span class="bg-light" contenteditable="false">{{asset.timeModified | dateTimestamp}}</span>
               </td>
               <td>
                 <span class="table-remove">
                   <button type="button" class="my-0 btn btn-danger btn-sm"
-                    (click)="removeAsset(asset.identifier)">Remove</button>
+                    (click)="onRemoveAsset(asset.identifier)">Remove</button>
                 </span>
               </td>
             </tr>

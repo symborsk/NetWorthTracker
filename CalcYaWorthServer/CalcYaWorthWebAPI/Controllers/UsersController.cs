@@ -6,6 +6,7 @@ using CalcYaWorthWebAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace CalcYaWorthWebAPI.Controllers
 {
@@ -20,8 +21,8 @@ namespace CalcYaWorthWebAPI.Controllers
             _context = context;
         }
 
-        [HttpGet("GetCurrencySelected/{userId}")]
-        public async Task<ActionResult<string>> GetCurrencySelected(int userId)
+        [HttpGet("{userId}")]
+        public async Task<IActionResult> GetCurrencySelected(int userId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == userId);
 
@@ -31,14 +32,24 @@ namespace CalcYaWorthWebAPI.Controllers
             }
             else
             {
-                if (string.IsNullOrEmpty(user.CurrencyIsoCode))
-                {
-                    return NoContent();
-                }
-
-                return Ok(user.CurrencyIsoCode);
+                return Ok(user);
             }
         }
+        [HttpPut("Currency/{userId}/{currencyIso}")]
+        public async Task<IActionResult> PutDefaultCurrency(int userId, string currencyIso)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == userId);
 
+            if (user != null)
+            {
+                user.CurrencyIsoCode = currencyIso;
+                await _context.SaveChangesAsync();
+                return Ok();
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
     }
 }

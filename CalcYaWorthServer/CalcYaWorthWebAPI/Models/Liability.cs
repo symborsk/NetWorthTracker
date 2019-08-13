@@ -20,7 +20,7 @@ namespace CalcYaWorthWebAPI.Models
 
         public string Description { get; set; }
         [Column(TypeName = "decimal(18, 4)")]
-        public decimal BaseAmount { get; set; }
+        public decimal AmountBase { get; set; }
         public long TimeCreated { get; set; }
         public long TimeModified { get; set; }
     }

@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using CalcYaWorthWebAPI.Models;
 using Swashbuckle.AspNetCore.Swagger;
+using System.Net.Http;
 
 namespace CalcYaWorthWebAPI
 {
@@ -32,15 +33,19 @@ namespace CalcYaWorthWebAPI
                         options.UseSqlServer(
                         Configuration.GetConnectionString("LocalCalcYaWorth")));
 
-            // Add application services.
-            services.AddTransient<IContext, Context>();
 
+            // Add application services
+            services.AddTransient<IContext, Context>();
+            services.AddSingleton<IConfiguration>(Configuration);
+            services.AddSingleton<HttpClient>();
+
+
+            services.AddCors(options => options.AddPolicy("ApiCorsPolicy", builder =>
+            {
+                builder.WithOrigins("http://localhost:4200").AllowAnyMethod().AllowAnyHeader();
+            }));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            services.AddCors(c =>
-            {
-                c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin());
-            });
 
             services.AddSwaggerGen(c =>
             {
@@ -67,8 +72,12 @@ namespace CalcYaWorthWebAPI
                 app.UseHsts();
             }
 
-            app.UseCors(options => options.AllowAnyOrigin());
             app.UseHttpsRedirection();
+            app.UseCors(builder => builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .AllowCredentials());
             app.UseMvc();
             app.UseSwagger();
             app.UseSwaggerUI(c =>

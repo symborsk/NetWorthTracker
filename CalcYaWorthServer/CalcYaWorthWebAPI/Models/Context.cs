@@ -11,15 +11,8 @@ namespace CalcYaWorthWebAPI.Models
         {
         }
 
-        public DbSet<AppSetting> AppSettings { get; set; }
         public DbSet<Asset> Assets { get; set; }
         public DbSet<Liability> Liabilities { get; set; }
         public DbSet<User> Users { get; set; }
-
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-
-        }
-    }
-   
+    } 
 }

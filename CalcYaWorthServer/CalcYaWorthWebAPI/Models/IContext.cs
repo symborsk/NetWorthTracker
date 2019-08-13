@@ -6,7 +6,6 @@ namespace CalcYaWorthWebAPI.Models
 {
     public interface IContext
     {
-        DbSet<AppSetting> AppSettings { get; set; }
         DbSet<Asset> Assets { get; set; }
         DbSet<Liability> Liabilities { get; set; }
         DbSet<User> Users { get; set; }

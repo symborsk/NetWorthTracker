@@ -1,25 +1,19 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AppSettingsService } from './app-settings.service';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CurrencyFetcherService {
-  // Our base free to use key for fixer currency exchange
-  private apiPath: string;
+  private baseUrl: string;
 
-  constructor(private http: HttpClient, private settingService: AppSettingsService) {
-      this.settingService.getAppSetting('CurrencyApiUrl')
-      .subscribe(
-        response => {
-            this.apiPath = response;
-        }, error => console.log(error)
-      );
+  constructor(private http: HttpClient) {
+    this.baseUrl = environment.baseUrl + '/CurrencyRates';
    }
 
-  fetchAllCurrencies(base: string): Observable<any> {
-      return this.http.get<any>(this.apiPath + '&base=' + base);
+  fetchAllCurrencies(currency: string): Observable<any> {
+      return this.http.get<any>(this.baseUrl + '/' + currency);
   }
 }

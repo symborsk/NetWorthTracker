@@ -15,11 +15,9 @@ import { NetWorthInfoService } from './Services/net-worth-info.service';
 })
 export class AppComponent implements OnInit {
 
-  IsAsset = false;
+  private frmAssetLiabilityEntre: FormGroup;
 
-  frmAssetLiabilityEntre: FormGroup;
-
-  editField: string;
+  private editField: string;
 
   private liabilitiesList: Array<NetWorthInfo> = [];
 
@@ -36,40 +34,42 @@ export class AppComponent implements OnInit {
   constructor(private fb: FormBuilder,
               private currrencyService: CurrencyFetcherService,
               private userService: UserService,
-              private netWorthInfoService: NetWorthInfoService) {
-    // Ensure no errors thrown on initializing of child componented by setting this empty exachange rate
-    this.currentRateSelected = new CurrencyRate();
-    this.grabAllCurrencyRatesFromService();
-  }
+              private netWorthInfoService: NetWorthInfoService) {}
 
   ngOnInit(): void {
+
     this.frmAssetLiabilityEntre = this.fb.group({
       Description: new FormControl(null, [Validators.required]),
-      Amount: new FormControl(null, [Validators.required])
+      Amount: new FormControl(null, [Validators.required]),
+      NetWorthType: 'Asset'
     });
 
-    this.setUsersDefaultCurrencyRate();
-    this.grabAllUserNetWorthInfo();
+    this.getAllCurrencyRatesFromService();
+    this.getAllUserNetWorthInfo();
   }
 
-  updateAmountListAsset(identifier: number, property: string, event: any) {
+  onUpdateAmountAsset(identifier: number, property: string, event: any) {
+    // strip out any string, we want raw number
+    const rawNumber = event.target.textContent.replace(/[^0-9.]/g, '', '');
     const index = this.assetList.findIndex(x => x.identifier === identifier);
 
-    this.assetList[index][property] = this.convertToBase(event.target.textContent);
-    this.assetList[index].dateModifiedTimestamp = new Date().getTime();
-    this.netWorthInfoService.updateAsset(this.assetList[index]);
-    this.calculateTotal();
+    if (rawNumber) {
+      this.assetList[index][property] = this.convertToBase(rawNumber);
+      this.assetList[index].timeModified = new Date().getTime();
+      this.updateAsset(this.assetList[index]);
+      this.calculateTotal();
+    }
   }
 
-  updateListAsset(identifier: number, property: string, event: any) {
+  onUpdateAsset(identifier: number, property: string, event: any) {
     const index = this.assetList.findIndex(x => x.identifier === identifier);
 
     this.assetList[index][property] = event.target.textContent;
-    this.assetList[index].dateModifiedTimestamp = new Date().getTime();
-    this.netWorthInfoService.updateAsset(this.assetList[index]);
+    this.assetList[index].timeModified = new Date().getTime();
+    this.updateAsset(this.assetList[index]);
   }
 
-  removeAsset(identifier: number) {
+  onRemoveAsset(identifier: number) {
     const index = this.assetList.findIndex(x => x.identifier === identifier);
 
     this.assetList.splice(index, 1);
@@ -77,24 +77,28 @@ export class AppComponent implements OnInit {
     this.calculateTotal();
   }
 
-  updateAmountListLiability(identifier: number, property: string, event: any) {
+  onUpdateAmountLiability(identifier: number, property: string, event: any) {
+    // strip out any string, we want raw number
+    const rawNumber = event.target.textContent.replace(/[^0-9.]/g, '');
     const index = this.liabilitiesList.findIndex(x => x.identifier === identifier);
 
-    this.liabilitiesList[index][property] = this.convertToBase(event.target.textContent);
-    this.liabilitiesList[index].dateModifiedTimestamp = new Date().getTime();
-    this.netWorthInfoService.updateLiability(this.liabilitiesList[index]);
-    this.calculateTotal();
+    if (rawNumber) {
+      this.liabilitiesList[index][property] = this.convertToBase(rawNumber);
+      this.liabilitiesList[index].timeModified = new Date().getTime();
+      this.updateLiability(this.liabilitiesList[index]);
+      this.calculateTotal();
+    }
   }
 
-  updateListLiability(identifier: number, property: string, event: any) {
+  onUpdateLiability(identifier: number, property: string, event: any) {
     const index = this.liabilitiesList.findIndex(x => x.identifier === identifier);
 
     this.liabilitiesList[index][property] = event.target.textContent;
-    this.liabilitiesList[index].dateModifiedTimestamp = new Date().getTime();
-    this.netWorthInfoService.updateLiability(this.liabilitiesList[index]);
+    this.liabilitiesList[index].timeModified = new Date().getTime();
+    this.updateLiability(this.liabilitiesList[index]);
   }
 
-  removeLiability(identifier: number) {
+  onRemoveLiability(identifier: number) {
     const index = this.liabilitiesList.findIndex(x => x.identifier === identifier);
 
     this.netWorthInfoService.deleteLiability(identifier).subscribe();
@@ -106,18 +110,18 @@ export class AppComponent implements OnInit {
   addAssetOrLiability() {
     const descEntered = this.frmAssetLiabilityEntre.get('Description').value;
     const amountEntered = this.frmAssetLiabilityEntre.get('Amount').value;
+    const isAsset = (this.frmAssetLiabilityEntre.get('NetWorthType').value === 'Asset');
 
-    if (this.IsAsset) {
+    if (isAsset) {
       const newAsset = new Asset();
 
       newAsset.userId = this.userId;
       newAsset.description = descEntered;
       newAsset.amountBase = this.convertToBase(amountEntered);
-      newAsset.dateCreatedTimestamp =  new Date().getTime();
-      newAsset.dateModifiedTimestamp = newAsset.dateCreatedTimestamp;
+      newAsset.timeCreated =  new Date().getTime();
+      newAsset.timeModified = newAsset.timeCreated;
 
-      this.PostNewAsset(newAsset);
-      this.assetList.push(newAsset);
+      this.postNewAsset(newAsset);
 
       } else {
         const newLiability = new Liability();
@@ -125,12 +129,10 @@ export class AppComponent implements OnInit {
         newLiability.userId = this.userId;
         newLiability.description = descEntered;
         newLiability.amountBase = this.convertToBase(amountEntered);
-        newLiability.dateCreatedTimestamp =  new Date().getTime();
-        newLiability.dateModifiedTimestamp = newLiability.dateCreatedTimestamp;
+        newLiability.timeCreated =  new Date().getTime();
+        newLiability.timeModified = newLiability.timeCreated;
 
-        this.PostNewLiability(newLiability);
-
-        this.liabilitiesList.push(newLiability);
+        this.postNewLiability(newLiability);
     }
 
     // Believe it is best if this value resets after adding
@@ -147,6 +149,7 @@ export class AppComponent implements OnInit {
 
   rate_onChange(rate: CurrencyRate) {
     this.currentRateSelected = rate;
+    this.updateUsersDefaultCurrency(rate.CurrencyISO4217Code);
   }
 
   calculateTotal() {
@@ -160,7 +163,7 @@ export class AppComponent implements OnInit {
     return value / this.currentRateSelected.RateVersusBase;
   }
 
-  PostNewLiability(newLiability: Liability) {
+  postNewLiability(newLiability: Liability) {
     this.netWorthInfoService.postLiability(newLiability)
     .subscribe(
       response => {
@@ -170,7 +173,7 @@ export class AppComponent implements OnInit {
     );
   }
 
-  PostNewAsset(newAsset: Asset) {
+  postNewAsset(newAsset: Asset) {
     this.netWorthInfoService.postAsset(newAsset)
     .subscribe(
       response => {
@@ -180,7 +183,7 @@ export class AppComponent implements OnInit {
     );
   }
 
-  grabAllUserNetWorthInfo() {
+  getAllUserNetWorthInfo() {
     this.netWorthInfoService.getNetWorthInfo(this.userId)
     .subscribe(
       response => {
@@ -193,40 +196,68 @@ export class AppComponent implements OnInit {
     );
   }
 
-  grabAllCurrencyRatesFromService() {
+  getAllCurrencyRatesFromService() {
 
     this.currrencyService.fetchAllCurrencies('EUR')
     .subscribe(
       response => {
-
         for (const key of Object.keys(response.rates)) {
-
           const newRate = new CurrencyRate();
+
           newRate.CurrencyISO4217Code = key;
           newRate.RateVersusBase = response.rates[key];
           this.allCurrencies.push(newRate);
         }
 
-        this.currentRateSelected = this.allCurrencies.find(x => x.CurrencyISO4217Code === 'EUR');
+        // once all the currency rates are brought in find the defaul
+        this.getUsersDefaultCurrency();
       },
-      (error: Response) => {
-        if (error.status === 104)  {
-          alert('The API has run out of requests for this month, someone should have payed the bill. ¯\_(ツ)_/¯');
-        } else {
-          alert('An Unexpected Error Occured when trying to fetch current currency rates.');
-          console.log(error);
-        }
+      error => {
+        alert('An Unexpected Error Occured when trying to fetch current currency rates.');
+        console.log(error);
       });
   }
 
-  setUsersDefaultCurrencyRate() {
-    this.userService.getUserCurrency(this.userId)
+  getUsersDefaultCurrency() {
+    this.userService.getUserInfo(this.userId)
     .subscribe(
       response => {
-        if (!response) {
-          this.currentRateSelected = this.allCurrencies.find( x =>  x.CurrencyISO4217Code === response);
+        if (response.currencyIsoCode) {
+          this.currentRateSelected = this.allCurrencies.find( x =>  x.CurrencyISO4217Code === response.currencyIsoCode);
+        } else {
+          this.currentRateSelected = this.allCurrencies.find(x => x.CurrencyISO4217Code === 'EUR'); // our default to stay in free pricing
         }
     }, error => console.log(error)
     );
+  }
+
+  updateAsset(asset: Asset) {
+    this.netWorthInfoService.updateAsset(asset).subscribe(
+      () => {},
+      error => {
+        alert('An Unexpected Error Occured when trying to fetch current currency rates.');
+        console.log(error);
+      });
+  }
+
+  updateLiability(liability: Liability) {
+    this.netWorthInfoService.updateLiability(liability).subscribe(
+      () => {},
+      error => {
+        alert('An Unexpected Error Occured when trying to fetch current currency rates.');
+        console.log(error);
+      });
+  }
+
+  removeAsset(identifier: number) {
+    this.netWorthInfoService.deleteAsset(identifier).subscribe();
+  }
+
+  removeLiability(identifier: number) {
+    this.netWorthInfoService.deleteLiability(identifier).subscribe();
+  }
+
+  updateUsersDefaultCurrency(currencyIso: string) {
+    this.userService.updateUserCurrency(this.userId, currencyIso).subscribe();
   }
 }
