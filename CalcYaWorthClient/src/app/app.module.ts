@@ -6,7 +6,6 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MDBBootstrapModule } from 'angular-bootstrap-md';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { UiSwitchModule } from 'ngx-toggle-switch';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -31,7 +30,6 @@ import { DateTimestampPipe } from './Pipes/date-timestamp.pipe';
     MatButtonToggleModule,
     HttpClientModule,
     BrowserModule,
-    UiSwitchModule,
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
