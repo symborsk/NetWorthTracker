@@ -26,7 +26,9 @@ export class AppComponent implements OnInit {
 
   private allCurrencies: Array<CurrencyRate> = [];
 
-  private currentTotal: number;
+  private netWorthTotal: number;
+  private assetsTotal: number;
+  private liabilitiesTotal: number;
 
   private userId = 1; // Hardcoded for now, seperate user interaction implmented next version
 
@@ -52,7 +54,7 @@ export class AppComponent implements OnInit {
 
     if (asset.UpdateAmount(event.target.textContent, this.currentRateSelected)) {
       this.calculateTotal();
-      this.updateLiability(asset);
+      this.updateAsset(asset);
     }
   }
 
@@ -125,10 +127,10 @@ export class AppComponent implements OnInit {
   }
 
   calculateTotal() {
-    const sumAssets = this.assetList.reduce((sum, current) => sum + current.amountBase, 0);
-    const sumLiabilities = this.liabilitiesList.reduce((sum, current) => sum + current.amountBase, 0);
+    this.assetsTotal = this.assetList.reduce((sum, current) => sum + current.amountBase, 0);
+    this.liabilitiesTotal = this.liabilitiesList.reduce((sum, current) => sum + current.amountBase, 0);
 
-    this.currentTotal = sumAssets - sumLiabilities;
+    this.netWorthTotal = this.assetsTotal - this.liabilitiesTotal;
   }
 
   postNewLiability(newLiability: Liability) {

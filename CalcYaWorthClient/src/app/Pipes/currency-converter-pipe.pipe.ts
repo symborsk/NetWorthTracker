@@ -21,15 +21,16 @@ export class CurrencyConverterPipePipe implements PipeTransform {
         case 'USD':
         case 'AUD':
         case 'MXN':
-          return '$' + calculatedCurrencyValue.toFixed(2);
+          return '$' + calculatedCurrencyValue.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         case 'EUR':
-          return '€' + calculatedCurrencyValue.toFixed(2);
+          return '€' + calculatedCurrencyValue.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         case 'GBP':
-          return '£' + calculatedCurrencyValue.toFixed(2);
+          return '£' + calculatedCurrencyValue.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         case 'CNY':
-          return '¥' + calculatedCurrencyValue.toFixed(2);
+          return '¥' + calculatedCurrencyValue.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
         default:
-          return calculatedCurrencyValue.toFixed(2) + ' ' + rate.CurrencyISO4217Code.toUpperCase();
+          return calculatedCurrencyValue.toFixed(2).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+             + ' ' + rate.CurrencyISO4217Code.toUpperCase();
       }
     }
   }
