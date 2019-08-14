@@ -45,18 +45,18 @@
             <tr *ngFor="let liability of liabilitiesList;">
               <td>
                 <span (keyup)="changeValue($event)"
-                  (blur)="onUpdateLiability(liability.identifier, 'description', $event)"
+                  (blur)="onUpdateLiabilityDesc(liability.identifier, $event)"
                   contenteditable="true">{{liability.description}}</span>
               </td>
               <td>
                 <span contenteditable="true" (keyup)="changeValue($event)"
-                  (blur)="onUpdateAmountLiability(liability.identifier, 'amountBase', $event)">{{liability.amountBase | currencyConverterPipe: currentRateSelected}}</span>
+                  (blur)="onUpdateLiabilityAmount(liability.identifier,  $event)">{{liability.amountBase | currencyConverterPipe: currentRateSelected}}</span>
               </td>
               <td>
-                <span class="bg-light" contenteditable="false">{{liability.timeCreated | dateTimestamp}}</span>
+                <span class="bg-light text-muted" contenteditable="false">{{liability.timeCreated | dateTimestamp}}</span>
               </td>
               <td>
-                <span class="bg-light" contenteditable="false">{{liability.timeModified | dateTimestamp}}</span>
+                <span class="bg-light text-muted" contenteditable="false">{{liability.timeModified | dateTimestamp}}</span>
               </td>
               <td>
                 <span class="table-remove">
@@ -84,18 +84,18 @@
             </tr>
             <tr *ngFor="let asset of assetList">
               <td>
-                <span (keyup)="changeValue($event)" (blur)="onUpdateAsset(asset.identifier, 'description', $event)"
+                <span (keyup)="changeValue($event)" (blur)="onUpdateAssetDesc(asset.identifier, $event)"
                   contenteditable="true">{{asset.description}}</span>
               </td>
               <td>
                 <span contenteditable="true" (keyup)="changeValue($event)"
-                  (blur)="onUpdateAmountAsset(asset.identifier, 'amountBase', $event)">{{asset.amountBase | currencyConverterPipe: currentRateSelected}}</span>
+                  (blur)="onUpdateAssetAmount(asset.identifier, $event)">{{asset.amountBase | currencyConverterPipe: currentRateSelected}}</span>
               </td>
               <td>
-                <span class="bg-light" contenteditable="false">{{asset.timeCreated | dateTimestamp}}</span>
+                <span class="bg-light text-muted" contenteditable="false">{{asset.timeCreated | dateTimestamp}}</span>
               </td>
               <td>
-                <span class="bg-light" contenteditable="false">{{asset.timeModified | dateTimestamp}}</span>
+                <span class="bg-light text-muted" contenteditable="false">{{asset.timeModified | dateTimestamp}}</span>
               </td>
               <td>
                 <span class="table-remove">

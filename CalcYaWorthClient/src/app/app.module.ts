@@ -1,10 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { MatButtonToggleModule  } from '@angular/material';
-import { NgbPaginationModule, NgbAlertModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgModule } from '@angular/core';
-import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { HttpClientModule} from '@angular/common/http';
 import { MDBBootstrapModule } from 'angular-bootstrap-md';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
@@ -23,16 +20,11 @@ import { DateTimestampPipe } from './Pipes/date-timestamp.pipe';
     DateTimestampPipe
   ],
   imports: [
-    NgbPaginationModule,
     MDBBootstrapModule.forRoot(),
-    NgbAlertModule,
-    NgbDropdownModule,
-    MatButtonToggleModule,
     HttpClientModule,
     BrowserModule,
     FormsModule,
     ReactiveFormsModule,
-    BrowserAnimationsModule,
     NgbModule,
     AppRoutingModule,
     UiModule

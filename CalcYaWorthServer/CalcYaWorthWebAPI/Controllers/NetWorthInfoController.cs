@@ -32,9 +32,9 @@ namespace CalcYaWorthWebAPI.Controllers
         }
 
         [HttpPost("Asset")]
-        public async Task<ActionResult<int>> PostAssetAsync([FromBody]Asset asset)
+        public async Task<ActionResult<int>> PostAsset([FromBody]Asset asset)
         {
-            await _context.Assets.AddAsync(asset);
+            _context.Assets.Add(asset);
 
             try
             {
@@ -66,7 +66,7 @@ namespace CalcYaWorthWebAPI.Controllers
         }
 
         [HttpPut("Asset")]
-        public async Task<ActionResult> PutAsset([FromBody]Asset asset)
+        public async Task<IActionResult> PutAsset([FromBody]Asset asset)
         {
             _context.Assets.Update(asset);
 
@@ -86,7 +86,7 @@ namespace CalcYaWorthWebAPI.Controllers
         }
 
         [HttpPut("Liability")]
-        public async Task<ActionResult> PutLiability([FromBody]Liability liability)
+        public async Task<IActionResult> PutLiability([FromBody]Liability liability)
         {
             _context.Liabilities.Update(liability);
 
@@ -106,7 +106,7 @@ namespace CalcYaWorthWebAPI.Controllers
         }
 
         [HttpDelete("Asset/{assetId}")]
-        public async Task<ActionResult> DeleteAsset(int assetId)
+        public async Task<IActionResult> DeleteAsset(int assetId)
         {
             var foundAsset = await _context.Assets.FirstOrDefaultAsync(x => x.Identifier == assetId);
             if(foundAsset != null)
@@ -129,7 +129,7 @@ namespace CalcYaWorthWebAPI.Controllers
         }
 
         [HttpDelete("Liability/{liabilityId}")]
-        public async Task<ActionResult> DeleteLiability(int liabilityId)
+        public async Task<IActionResult> DeleteLiability(int liabilityId)
         {
             var foundLiability = await _context.Liabilities.FirstOrDefaultAsync(x => x.Identifier == liabilityId);
             if (foundLiability != null)

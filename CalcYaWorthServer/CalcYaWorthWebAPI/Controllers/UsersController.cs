@@ -22,7 +22,7 @@ namespace CalcYaWorthWebAPI.Controllers
         }
 
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetCurrencySelected(int userId)
+        public async Task<IActionResult> GetUserInfo(int userId)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == userId);
 

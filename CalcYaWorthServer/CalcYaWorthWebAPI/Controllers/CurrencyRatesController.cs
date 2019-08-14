@@ -28,7 +28,7 @@ namespace CalcYaWorthWebAPI.Controllers
         }
 
         [HttpGet("{defaultCurrency}")]
-        public async Task<IActionResult> GetAppSetting(string defaultCurrency)
+        public async Task<IActionResult> GetAllCurrenciesExternal(string defaultCurrency)
         {
             string currencyApiUrl = _config["CurrencyApi"];
             HttpResponseMessage response = await _client.GetAsync($"{currencyApiUrl}&base={defaultCurrency}");

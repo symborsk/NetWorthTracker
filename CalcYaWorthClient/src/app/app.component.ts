@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
-import { Guid } from 'guid-typescript';
 import { NetWorthInfo, Asset, Liability } from './classes/NetWorthInfo';
 import { CurrencyFetcherService } from './Services/currency-fetcher.service';
 import { CurrencyRate } from './classes/currencyRate';
@@ -11,7 +10,7 @@ import { NetWorthInfoService } from './Services/net-worth-info.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
 
@@ -48,25 +47,20 @@ export class AppComponent implements OnInit {
     this.getAllUserNetWorthInfo();
   }
 
-  onUpdateAmountAsset(identifier: number, property: string, event: any) {
-    // strip out any string, we want raw number
-    const rawNumber = event.target.textContent.replace(/[^0-9.]/g, '', '');
-    const index = this.assetList.findIndex(x => x.identifier === identifier);
+  onUpdateAssetAmount(identifier: number, event: any) {
+    const asset = this.assetList.find(x => x.identifier === identifier);
 
-    if (rawNumber) {
-      this.assetList[index][property] = this.convertToBase(rawNumber);
-      this.assetList[index].timeModified = new Date().getTime();
-      this.updateAsset(this.assetList[index]);
+    if (asset.UpdateAmount(event.target.textContent, this.currentRateSelected)) {
       this.calculateTotal();
+      this.updateLiability(asset);
     }
   }
 
-  onUpdateAsset(identifier: number, property: string, event: any) {
-    const index = this.assetList.findIndex(x => x.identifier === identifier);
+  onUpdateAssetDesc(identifier: number, event: any) {
+    const asset = this.assetList.find(x => x.identifier === identifier);
 
-    this.assetList[index][property] = event.target.textContent;
-    this.assetList[index].timeModified = new Date().getTime();
-    this.updateAsset(this.assetList[index]);
+    asset.UpdateDescription(event.target.textContent);
+    this.updateAsset(asset);
   }
 
   onRemoveAsset(identifier: number) {
@@ -77,31 +71,25 @@ export class AppComponent implements OnInit {
     this.calculateTotal();
   }
 
-  onUpdateAmountLiability(identifier: number, property: string, event: any) {
-    // strip out any string, we want raw number
-    const rawNumber = event.target.textContent.replace(/[^0-9.]/g, '');
-    const index = this.liabilitiesList.findIndex(x => x.identifier === identifier);
+  onUpdateLiabilityAmount(identifier: number, event: any) {
+    const liability = this.liabilitiesList.find(x => x.identifier === identifier);
 
-    if (rawNumber) {
-      this.liabilitiesList[index][property] = this.convertToBase(rawNumber);
-      this.liabilitiesList[index].timeModified = new Date().getTime();
-      this.updateLiability(this.liabilitiesList[index]);
+    if (liability.UpdateAmount(event.target.textContent, this.currentRateSelected)) {
       this.calculateTotal();
+      this.updateLiability(liability);
     }
   }
 
-  onUpdateLiability(identifier: number, property: string, event: any) {
-    const index = this.liabilitiesList.findIndex(x => x.identifier === identifier);
+  onUpdateLiabilityDesc(identifier: number, event: any) {
+    const liability = this.liabilitiesList.find(x => x.identifier === identifier);
 
-    this.liabilitiesList[index][property] = event.target.textContent;
-    this.liabilitiesList[index].timeModified = new Date().getTime();
-    this.updateLiability(this.liabilitiesList[index]);
+    liability.UpdateDescription(event.target.textContent);
+    this.updateLiability(liability);
   }
 
   onRemoveLiability(identifier: number) {
     const index = this.liabilitiesList.findIndex(x => x.identifier === identifier);
 
-    this.netWorthInfoService.deleteLiability(identifier).subscribe();
     this.liabilitiesList.splice(index, 1);
     this.removeLiability(identifier);
     this.calculateTotal();
@@ -113,33 +101,17 @@ export class AppComponent implements OnInit {
     const isAsset = (this.frmAssetLiabilityEntre.get('NetWorthType').value === 'Asset');
 
     if (isAsset) {
-      const newAsset = new Asset();
-
-      newAsset.userId = this.userId;
-      newAsset.description = descEntered;
-      newAsset.amountBase = this.convertToBase(amountEntered);
-      newAsset.timeCreated =  new Date().getTime();
-      newAsset.timeModified = newAsset.timeCreated;
-
+      const newAsset = new Asset(descEntered, amountEntered, this.userId, this.currentRateSelected);
       this.postNewAsset(newAsset);
 
       } else {
-        const newLiability = new Liability();
-
-        newLiability.userId = this.userId;
-        newLiability.description = descEntered;
-        newLiability.amountBase = this.convertToBase(amountEntered);
-        newLiability.timeCreated =  new Date().getTime();
-        newLiability.timeModified = newLiability.timeCreated;
-
+        const newLiability = new Liability(descEntered, amountEntered, this.userId, this.currentRateSelected);
         this.postNewLiability(newLiability);
     }
 
-    // Believe it is best if this value resets after adding
+    // Reset values after adding
     this.frmAssetLiabilityEntre.get('Description').setValue(null);
     this.frmAssetLiabilityEntre.get('Amount').setValue(null);
-
-    this.calculateTotal();
   }
 
   // Needed for material inline edit table
@@ -159,18 +131,17 @@ export class AppComponent implements OnInit {
     this.currentTotal = sumAssets - sumLiabilities;
   }
 
-  convertToBase(value: number): number {
-    return value / this.currentRateSelected.RateVersusBase;
-  }
-
   postNewLiability(newLiability: Liability) {
     this.netWorthInfoService.postLiability(newLiability)
     .subscribe(
       response => {
           newLiability.identifier = response;
           this.liabilitiesList.push(newLiability);
-    }, error => console.log(error)
-    );
+          this.calculateTotal();
+    }, error => {
+      alert('An unexpected error occured when trying create an liability.');
+      console.log(error);
+    });
   }
 
   postNewAsset(newAsset: Asset) {
@@ -179,8 +150,11 @@ export class AppComponent implements OnInit {
       response => {
         newAsset.identifier = response;
         this.assetList.push(newAsset);
-    }, error => console.log(error)
-    );
+        this.calculateTotal();
+    }, error => {
+      alert('An unexpected error occured when trying create an asset.');
+      console.log(error);
+    });
   }
 
   getAllUserNetWorthInfo() {
@@ -188,8 +162,11 @@ export class AppComponent implements OnInit {
     .subscribe(
       response => {
           if (response) {
-            this.assetList = response.assets;
-            this.liabilitiesList = response.liablities;
+            // Need to assign these to proper objects so we can handle data manipluation
+            response.assets.forEach((a: Asset) => this.assetList.push(new Asset(a.description, a.amountBase,
+               a.userId, null, a.timeCreated, a.timeModified, a.identifier)));
+            response.liablities.forEach((l: Liability) => this.liabilitiesList.push(new Liability(l.description, l.amountBase,
+              l.userId, null, l.timeCreated, l.timeModified, l.identifier)));
           }
           this.calculateTotal();
     }, error => console.log(error)
@@ -213,7 +190,7 @@ export class AppComponent implements OnInit {
         this.getUsersDefaultCurrency();
       },
       error => {
-        alert('An Unexpected Error Occured when trying to fetch current currency rates.');
+        alert('An unexpected error occured when trying to fetch current currency rates.');
         console.log(error);
       });
   }
@@ -235,7 +212,7 @@ export class AppComponent implements OnInit {
     this.netWorthInfoService.updateAsset(asset).subscribe(
       () => {},
       error => {
-        alert('An Unexpected Error Occured when trying to fetch current currency rates.');
+        alert('An unexpected error occured when trying update an asset.');
         console.log(error);
       });
   }
@@ -244,7 +221,7 @@ export class AppComponent implements OnInit {
     this.netWorthInfoService.updateLiability(liability).subscribe(
       () => {},
       error => {
-        alert('An Unexpected Error Occured when trying to fetch current currency rates.');
+        alert('An unexpected error occured when trying to update a liability.');
         console.log(error);
       });
   }
